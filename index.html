@@ -1,0 +1,163 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Diamonds Rewards</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f4ff;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding-top: 30px;
+      flex-wrap: wrap;
+    }
+    .reward-box {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 300px;
+      text-align: center;
+      margin: 10px;
+      position: relative;
+    }
+    .points-label {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      background: #ffe3c2;
+      color: #c76a00;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+    .diamond {
+      font-size: 40px;
+      margin: 15px 0;
+    }
+    .redeem-btn {
+      background: linear-gradient(to right, #a18cd1, #fbc2eb);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .redeem-btn:hover {
+      opacity: 0.9;
+    }
+    .input-group {
+      margin-top: 15px;
+      display: none;
+    }
+    .input-group input {
+      width: 90%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    .progress-text {
+      margin-top: 10px;
+      color: #555;
+    }
+    .successMsg {
+      color: green;
+      font-weight: bold;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>  <script>
+    const rewards = [
+      { amount: 10, ads: 2 },
+      { amount: 50, ads: 5 },
+      { amount: 100, ads: 10 },
+      { amount: 500, ads: 30 },
+      { amount: 1000, ads: 50 }
+    ];
+
+    rewards.forEach((reward, index) => {
+      document.write(`
+        <div class="reward-box" id="box${index}">
+          <div class="points-label" id="adCount${index}">0 Ads</div>
+          <div class="diamond">${reward.amount} Diamonds</div>
+          <button class="redeem-btn" id="redeemButton${index}">REDEEM</button>
+
+          <div class="input-group" id="inputGroup${index}">
+            <input type="text" id="mlId${index}" placeholder="Enter ML ID (numbers only)" required pattern="\\d+">
+            <input type="text" id="serverId${index}" placeholder="Enter Server ID" required>
+            <button class="redeem-btn" id="submitClaim${index}">Submit</button>
+          </div>
+
+          <p class="progress-text" id="progress${index}">Ads Watched: 0/${reward.ads}</p>
+          <p class="successMsg" id="successMsg${index}">Claim submitted successfully!</p>
+        </div>
+      `);
+    });
+
+    rewards.forEach((reward, index) => {
+      let adsWatched = parseInt(localStorage.getItem(`adsWatched${index}`) || '0');
+
+      window.addEventListener("DOMContentLoaded", () => updateProgress());
+
+      function updateProgress() {
+        const adCountLabel = document.getElementById(`adCount${index}`);
+        const progress = document.getElementById(`progress${index}`);
+        if (adCountLabel && progress) {
+          adCountLabel.textContent = `${adsWatched} Ads`;
+          progress.textContent = `Ads Watched: ${adsWatched}/${reward.ads}`;
+        }
+      }
+
+      setTimeout(() => {
+        const redeemButton = document.getElementById(`redeemButton${index}`);
+        const inputGroup = document.getElementById(`inputGroup${index}`);
+        const submitClaim = document.getElementById(`submitClaim${index}`);
+        const mlId = document.getElementById(`mlId${index}`);
+        const serverId = document.getElementById(`serverId${index}`);
+        const successMsg = document.getElementById(`successMsg${index}`);
+
+        if (!redeemButton) return;
+
+        redeemButton.addEventListener('click', () => {
+          if (adsWatched >= reward.ads) {
+            inputGroup.style.display = 'block';
+            successMsg.style.display = 'none';
+          } else {
+            adsWatched++;
+            localStorage.setItem(`adsWatched${index}`, adsWatched);
+            updateProgress();
+            alert('Simulated ad watched!');
+          }
+        });
+
+        submitClaim.addEventListener('click', () => {
+          const mlIdValue = mlId.value.trim();
+          if (/^\d+$/.test(mlIdValue) && serverId.value.trim()) {
+            inputGroup.style.display = 'none';
+            successMsg.style.display = 'block';
+            adsWatched = 0;
+            localStorage.setItem(`adsWatched${index}`, adsWatched);
+            updateProgress();
+            mlId.value = '';
+            serverId.value = '';
+          } else {
+            alert('Please enter a valid numeric ML ID and Server ID.');
+          }
+        });
+
+        updateProgress();
+      }, 100);
+    });
+  </script></body>
+</html>
